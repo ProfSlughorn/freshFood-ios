@@ -1,5 +1,6 @@
-import { Svg, Path, Circle, Rect, SvgProps} from 'react-native-svg';
-import {StatusBar} from 'expo-status-bar';
+import React, { useRef } from 'react';
+import { Svg, Path, Circle, Rect } from 'react-native-svg';
+import { StatusBar } from 'expo-status-bar';
 import {
     StyleSheet,
     Text,
@@ -11,15 +12,15 @@ import {
     SafeAreaView,
     Dimensions,
     Animated,
-    Platform
+    Platform,
+    NativeScrollEvent,
+    NativeSyntheticEvent
 } from 'react-native';
-import {MaterialIcons, FontAwesome5, Ionicons, Feather} from '@expo/vector-icons';
-import {JSX, useState} from 'react';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { MaterialIcons, Feather } from '@expo/vector-icons';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-// Define navigation types
 type RootStackParamList = {
     Home: undefined;
     ShoppingList: undefined;
@@ -27,49 +28,104 @@ type RootStackParamList = {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-const HomeScreen = ({navigation}: Props) => {
-    const [scrollY] = useState(new Animated.Value(0));
+const HomeScreen = ({ navigation }: Props) => {
+    // Create a ref for scrollView to handle animation properly
+    const scrollY = useRef(new Animated.Value(0)).current;
+
     const headerHeight = scrollY.interpolate({
         inputRange: [0, 100],
         outputRange: [200, 100],
         extrapolate: 'clamp',
     });
 
+    const headerOpacity = scrollY.interpolate({
+        inputRange: [0, 100],
+        outputRange: [1, 0.9],
+        extrapolate: 'clamp',
+    });
+
+    const titleScale = scrollY.interpolate({
+        inputRange: [0, 100],
+        outputRange: [1, 0.8],
+        extrapolate: 'clamp',
+    });
+
+    const titleTranslateY = scrollY.interpolate({
+        inputRange: [0, 100],
+        outputRange: [0, -10],
+        extrapolate: 'clamp',
+    });
+
+    const handleScroll = Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        { useNativeDriver: false }
+    );
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <StatusBar style="dark"/>
 
             {/* Animated Header */}
-            <Animated.View style={[styles.header, {height: headerHeight}]}>
+            <Animated.View
+                style={[
+                    styles.header,
+                    {
+                        height: headerHeight,
+                        opacity: headerOpacity
+                    }
+                ]}
+            >
                 <Image
                     source={require('../assets/back-2.jpg')}
                     style={styles.headerImage}
                     resizeMode="cover"
                 />
-                <View style={styles.headerOverlay}/>
-                <Text style={styles.headerTitle}>Save Food</Text>
-                <Text style={styles.headerSubtitle}>Reduce Waste, Save Earth</Text>
+                <View style={styles.headerOverlay} />
+                <Animated.Text
+                    style={[
+                        styles.headerTitle,
+                        {
+                            transform: [
+                                { scale: titleScale },
+                                { translateY: titleTranslateY }
+                            ]
+                        }
+                    ]}
+                >
+                    Save Food
+                </Animated.Text>
+                <Animated.Text
+                    style={[
+                        styles.headerSubtitle,
+                        {
+                            transform: [
+                                { scale: titleScale },
+                                { translateY: titleTranslateY }
+                            ]
+                        }
+                    ]}
+                >
+                    Reduce Waste, Save Earth
+                </Animated.Text>
             </Animated.View>
 
-            <ScrollView
+            <Animated.ScrollView
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
-                onScroll={Animated.event(
-                    [{nativeEvent: {contentOffset: {y: scrollY}}}],
-                    {useNativeDriver: false}
-                )}
+                onScroll={handleScroll}
                 scrollEventThrottle={16}
+                contentContainerStyle={styles.scrollViewContent}
             >
                 {/* Search Bar */}
                 <View style={styles.searchContainer}>
-                    <MaterialIcons name="search" size={22} color="#666" style={styles.searchIcon}/>
+                    <MaterialIcons name="search" size={22} color="#666" style={styles.searchIcon} />
                     <TextInput
                         style={styles.searchInput}
                         placeholder="Search recipes, ingredients..."
                         placeholderTextColor="#999"
                     />
                     <TouchableOpacity style={styles.filterButton}>
-                        <Feather name="sliders" size={22} color="#4CAF50"/>
+                        <Feather name="sliders" size={22} color="#4CAF50" />
                     </TouchableOpacity>
                 </View>
 
@@ -151,7 +207,7 @@ const HomeScreen = ({navigation}: Props) => {
                         ))}
                     </ScrollView>
                 </View>
-            </ScrollView>
+            </Animated.ScrollView>
 
             {/* Bottom Navigation */}
             <View style={styles.bottomNav}>

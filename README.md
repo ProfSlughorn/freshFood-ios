@@ -19,3 +19,10 @@ expo install @react-navigation/native @react-navigation/native-stack react-nativ
 npx expo install react-native-svg
 
 ```
+
+
+# build
+```
+npx expo install expo-dev-client
+npx expo prebuild -p ios
+```

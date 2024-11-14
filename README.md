@@ -15,6 +15,7 @@ expo start -c
 To install libraries
 
 ```shell
+npx expo install expo-notifications
 expo install @react-navigation/native @react-navigation/native-stack react-native-screens react-native-safe-area-context
 npx expo install react-native-svg
 
@@ -25,4 +26,18 @@ npx expo install react-native-svg
 ```
 npx expo install expo-dev-client
 npx expo prebuild -p ios
+```
+
+# clean and build project for iOS
+```shell
+# Remove existing iOS folder
+rm -rf ios
+
+# Generate new iOS files
+npx expo prebuild -p ios
+
+# Install pods
+cd ios
+pod install
+cd ..
 ```

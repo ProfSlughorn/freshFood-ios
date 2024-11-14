@@ -27,7 +27,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.highlydistinguish</string>
+          <string>com.highlydistinguish.freshfood</string>
         </array>
       </dict>
       <dict>

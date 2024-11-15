@@ -48,7 +48,6 @@ const ShoppingListScreen: React.FC = () => {
   };
 
   const handleQuantityChange = async (id: number, quantity: number) => {
-    // Update the quantity locally (and optionally in the backend)
     setShoppingList((prevList) =>
       prevList.map((item) => (item.id === id ? { ...item, quantity } : item))
     );
@@ -90,6 +89,12 @@ const ShoppingListScreen: React.FC = () => {
         <Text>Loading...</Text>
       ) : (
         <FlatList
+          ListHeaderComponent={(
+            <View style={styles.headerRow}>
+              <Text style={styles.headerColumn}>Item</Text>
+              <Text style={styles.headerColumn}>Quantity</Text>
+            </View>
+          )}
           data={shoppingList}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderShoppingListItem}
@@ -126,6 +131,21 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 8,
+    borderBottomWidth: 1,
+    borderColor: '#000',
+    backgroundColor: '#f0f0f0',
+  },
+  headerColumn: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
   },
   row: {
     flexDirection: 'row',

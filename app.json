@@ -15,8 +15,20 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.highlydistinguish.freshfood",
+      "usesAppleSignIn": false,
       "supportsTablet": true
     },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "ios": {
+            "capable": false
+          }
+        }
+      ]
+    ],
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

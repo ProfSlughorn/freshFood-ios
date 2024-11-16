@@ -5,12 +5,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './screens/HomeScreen';
 import ShoppingListScreen from './screens/ShoppingListScreen';
 import LeftoverRecommenderScreen from './screens/LeftoverRecommenderScreen';
+import CameraScreen from './screens/CameraScreen'; // Import the CameraScreen
 
 // Define navigation types
 type RootStackParamList = {
     Home: undefined;
     ShoppingList: undefined;
     LeftoverRecommender: undefined;
+    Camera: undefined; // Add the CameraScreen route
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -46,6 +48,17 @@ export default function App() {
                             headerStyle: { backgroundColor: '#2196F3' },
                             headerTintColor: '#fff',
                             headerTitle: 'Leftover Manager',
+                        }}
+                    />
+
+                    {/* Camera Screen */}
+                    <Stack.Screen
+                        name="Camera"
+                        component={CameraScreen}
+                        options={{
+                            headerStyle: { backgroundColor: '#000' },
+                            headerTintColor: '#fff',
+                            headerTitle: 'Camera',
                         }}
                     />
                 </Stack.Navigator>

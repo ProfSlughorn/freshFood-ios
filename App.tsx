@@ -6,13 +6,15 @@ import HomeScreen from './screens/HomeScreen';
 import ShoppingListScreen from './screens/ShoppingListScreen';
 import LeftoverRecommenderScreen from './screens/LeftoverRecommenderScreen';
 import CameraScreen from './screens/CameraScreen'; // Import the CameraScreen
+import RecipeListScreen from './screens/Recipes'; // Import the Recipes
 
 // Define navigation types
 type RootStackParamList = {
     Home: undefined;
     ShoppingList: undefined;
-    LeftoverRecommender: undefined;
-    Camera: undefined; // Add the CameraScreen route
+    LeftoverRecommender: { recognizedIngredients?: string[] }; // Add recognizedIngredients
+    Camera: undefined;
+    RecipeList: { recipes: Array<{ name: string; steps: string; match_score: number }> }; // Add RecipeList
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -59,6 +61,17 @@ export default function App() {
                             headerStyle: { backgroundColor: '#000' },
                             headerTintColor: '#fff',
                             headerTitle: 'Camera',
+                        }}
+                    />
+
+                    {/* Recipe List Screen */}
+                    <Stack.Screen
+                        name="RecipeList"
+                        component={RecipeListScreen}
+                        options={{
+                            headerStyle: { backgroundColor: '#FF9800' },
+                            headerTintColor: '#fff',
+                            headerTitle: 'Recommended Recipes',
                         }}
                     />
                 </Stack.Navigator>

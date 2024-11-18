@@ -15,6 +15,7 @@ expo start -c
 To install libraries
 
 ```shell
+npx expo install expo-notifications
 expo install @react-navigation/native @react-navigation/native-stack react-native-screens react-native-safe-area-context
 npx expo install react-native-svg
 
@@ -58,4 +59,25 @@ Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) wi
 [Storing my-release-key.keystore]
 
 apksigner sign --ks my-release-key.keystore --ks-key-alias fresh_food_auth_key /Users/todd.zhang/Downloads/freshFood.apk
+```
+
+
+# build
+```
+npx expo install expo-dev-client
+npx expo prebuild -p ios
+```
+
+# clean and build project for iOS
+```shell
+# Remove existing iOS folder
+rm -rf ios
+
+# Generate new iOS files
+npx expo prebuild -p ios
+
+# Install pods
+cd ios
+pod install
+cd ..
 ```

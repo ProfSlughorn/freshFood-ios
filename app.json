@@ -14,13 +14,22 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "developmentClient": false,
     "ios": {
-      "supportsTablet": true
+      "developmentClient": false,
+      "supportsTablet": true,
+      "bundleIdentifier": "edu.monash.freshfood"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "edu.monash.freshfood"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "19b2963f-6e26-49d1-8417-fc9a7c9adfa5"
       }
     }
   }

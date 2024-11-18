@@ -21,6 +21,46 @@ npx expo install react-native-svg
 
 ```
 
+# production release
+
+```shell
+npm install -g eas-cli
+eas login
+eas build --platform ios
+
+
+```
+## iOS iPhone
+
+Firstly add below in `eas.json`
+```json
+"build": {
+    "preview": {
+      "ios": {
+        "simulator": true
+      }
+    },
+    "production": {}
+```
+Then run below shell
+```shell
+eas login
+eas build -p ios --profile preview
+```
+
+## Android
+
+```shell
+keytool -genkey -v -keystore my-release-key.keystore -alias fresh_food_auth_key -keyalg RSA -keysize 2048 -validity 10000
+abcd1234
+
+Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 10,000 days
+	for: CN=todd zhang, OU=ito5002-tp6-24, O=monash, L=Sydney, ST=NSW, C=AU
+[Storing my-release-key.keystore]
+
+apksigner sign --ks my-release-key.keystore --ks-key-alias fresh_food_auth_key /Users/todd.zhang/Downloads/freshFood.apk
+```
+
 
 # build
 ```

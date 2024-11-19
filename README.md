@@ -26,10 +26,8 @@ npx expo install react-native-svg
 ```shell
 npm install -g eas-cli
 eas login
-eas build --platform ios
-
-
 ```
+
 ## iOS iPhone
 
 Firstly add below in `eas.json`

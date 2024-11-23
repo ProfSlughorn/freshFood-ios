@@ -7,7 +7,7 @@
 npx expo start --clear
 # Stop the current server (Ctrl+C)
 # Clear metro bundler cache
-expo start -c
+#expo start -c
 
 ```
 

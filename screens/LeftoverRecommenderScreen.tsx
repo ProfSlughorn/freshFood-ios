@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Button, TextInput, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {API_ENDPOINTS} from "../config/api.config";
 
 type RootStackParamList = {
   Home: undefined;
@@ -75,7 +76,7 @@ const LeftoverRecommenderScreen: React.FC<Props> = ({ navigation, route }) => {
 
     setLoading(true); // Show loading indicator
     try {
-      const response = await fetch('https://keepitfresh-d0evbuaud4afdqd7.australiaeast-01.azurewebsites.net/api/leftover-recommendation/recommend/', {
+      const response = await fetch(API_ENDPOINTS.LEFTOVER_RECOMMENDATION, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

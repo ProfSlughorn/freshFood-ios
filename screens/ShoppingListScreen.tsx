@@ -3,7 +3,13 @@ import { View, Text, FlatList, StyleSheet, TextInput } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { RectButton } from 'react-native-gesture-handler';
-import { getShoppingList, addShoppingListItem, deleteShoppingListItem, ShoppingListItem } from '../api';
+// import { getShoppingList, addShoppingListItem, deleteShoppingListItem, ShoppingListItem } from '../api';
+import {
+  addShoppingListItem,
+  deleteShoppingListItem,
+  getShoppingListItems,
+  ShoppingListItem
+} from "../api/shopping-list";
 
 const ShoppingListScreen: React.FC = () => {
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
@@ -17,7 +23,8 @@ const ShoppingListScreen: React.FC = () => {
 
   const fetchShoppingList = async () => {
     try {
-      const data = await getShoppingList();
+      // const data = await getShoppingList();
+      const data = await getShoppingListItems()
       setShoppingList(data);
     } catch (error) {
       console.error('Failed to fetch shopping list:', error);

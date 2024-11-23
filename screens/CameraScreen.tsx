@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import {apiClient} from "../config/api.config";
 
 const CameraScreen: React.FC = ({ navigation }: any) => {
   const [capturedImage, setCapturedImage] = useState<ImageSourcePropType | null>(null);
@@ -37,16 +38,7 @@ const CameraScreen: React.FC = ({ navigation }: any) => {
       } as any);
 
       // Call the backend API
-      const response = await fetch(
-        'https://keepitfresh-d0evbuaud4afdqd7.australiaeast-01.azurewebsites.net/api/image-recognition/analyze-image/',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-          body: formData,
-        }
-      );
+      const response = await apiClient.uploadImage(formData);
 
       if (!response.ok) {
         throw new Error('Failed to analyze the image');

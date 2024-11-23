@@ -24,9 +24,24 @@ const ShoppingListScreen: React.FC = () => {
   const fetchShoppingList = async () => {
     try {
       const data = await getShoppingListItems();
-      setShoppingList(Array.isArray(data) ? data : []);
+      console.log("Fetched shopping list:", data);
+      if (Array.isArray(data)) {
+        // Ensure each item has the correct structure
+        const validData = data.filter(item =>
+            item &&
+            typeof item === 'object' &&
+            'id' in item &&
+            'name' in item &&
+            'quantity' in item
+        );
+        setShoppingList(validData);
+      } else {
+        console.warn("Invalid data format received:", data);
+        setShoppingList([]);
+      }
     } catch (error) {
       console.error('Failed to fetch shopping list:', error);
+      setShoppingList([]);
     } finally {
       setLoading(false);
     }
@@ -37,18 +52,26 @@ const ShoppingListScreen: React.FC = () => {
 
     const newItem: CreateShoppingListItem = {
       name: newItemName.trim(),
-      quantity: Math.max(1, Math.min(10, newItemQuantity)) // Ensure quantity is between 1 and 10
+      quantity: newItemQuantity  // Remove the Math.max/min here since we're already handling it in TextInput
     };
 
     try {
+      setLoading(true);  // Add loading state while adding
       const addedItem = await addShoppingListItem(newItem);
+
       if (addedItem && addedItem.id) {
-        setShoppingList((prevList) => [...prevList, addedItem]);
+        console.log("Added item:", addedItem);
+        // Fetch fresh data instead of optimistic update
+        await fetchShoppingList();
+        // Clear input fields after successful add
         setNewItemName('');
         setNewItemQuantity(1);
       }
     } catch (error) {
       console.error('Failed to add item:', error);
+      fetchShoppingList();
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -130,6 +153,9 @@ const ShoppingListScreen: React.FC = () => {
                 ListEmptyComponent={
                   <Text style={styles.emptyText}>No items in shopping list</Text>
                 }
+                extraData={shoppingList.length} // Add this to ensure updates trigger re-render
+                refreshing={loading}  // Add pull-to-refresh functionality
+                onRefresh={fetchShoppingList}
             />
         )}
         <View style={styles.inputContainer}>
@@ -147,15 +173,23 @@ const ShoppingListScreen: React.FC = () => {
               onChangeText={(text) => {
                 const num = parseInt(text, 10);
                 if (!isNaN(num)) {
-                  setNewItemQuantity(Math.max(1, Math.min(10, num)));
+                  if (num >= 1 && num <= 10) {  // Only update if within valid range
+                    setNewItemQuantity(num);
+                  }
                 }
               }}
           />
           <RectButton
-              style={[styles.addButton, !newItemName.trim() && styles.addButtonDisabled]}
+              style={[
+                styles.addButton,
+                (!newItemName.trim() || loading) && styles.addButtonDisabled
+              ]}
+              enabled={!loading && newItemName.trim().length > 0}
               onPress={handleAddItem}
           >
-            <Text style={styles.addButtonText}>Add Item</Text>
+            <Text style={styles.addButtonText}>
+              {loading ? 'Adding...' : 'Add Item'}
+            </Text>
           </RectButton>
         </View>
       </View>

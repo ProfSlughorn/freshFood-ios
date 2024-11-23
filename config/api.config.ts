@@ -13,6 +13,19 @@ export const API_ENDPOINTS = {
 
 export type ApiEndpoint = keyof typeof API_ENDPOINTS;
 
+export interface RecipeRequest {
+    ingredients: string[];
+}
+
+export interface RecipeResponse {
+    recipes: Recipe[];
+}
+
+export interface Recipe {
+    id: number;
+    name: string;
+    ingredients: string[];
+}
 // Create axios instance with config
 const axiosInstance = axios.create({
     timeout: 30000, // 30 seconds
@@ -82,6 +95,36 @@ export const apiClient = {
             return await axiosInstance.delete(`${API_ENDPOINTS[endpoint]}${id}/`);
         } catch (error) {
             console.error(`Error deleting from ${endpoint}:`, error);
+            throw error;
+        }
+    },
+
+    async uploadImage(formData: FormData): Promise<AxiosResponse> {
+        try {
+            return await axios.post(API_ENDPOINTS.IMAGE_RECOGNITION, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+        } catch (error) {
+            console.error(`Error uploading image:`, error);
+            throw error;
+        }
+    },
+    async generateRecipes(ingredients: string[]): Promise<RecipeResponse> {
+        try {
+            const response = await axios.post<RecipeResponse>(
+                API_ENDPOINTS.LEFTOVER_RECOMMENDATION,
+                { ingredients },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            return response.data;
+        } catch (error) {
+            console.error('Error generating recipes:', error);
             throw error;
         }
     }

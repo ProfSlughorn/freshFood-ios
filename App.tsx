@@ -7,6 +7,7 @@ import ShoppingListScreen from './screens/ShoppingListScreen';
 import LeftoverRecommenderScreen from './screens/LeftoverRecommenderScreen';
 import CameraScreen from './screens/CameraScreen'; // Import the CameraScreen
 import RecipeListScreen from './screens/Recipes'; // Import the Recipes
+import RecipeDetailScreen from './screens/RecipeDetail'; // Import the RecipeDetails
 
 // Define navigation types
 type RootStackParamList = {
@@ -14,7 +15,7 @@ type RootStackParamList = {
     ShoppingList: undefined;
     LeftoverRecommender: { recognizedIngredients?: string[] }; // Add recognizedIngredients
     Camera: undefined;
-    RecipeList: { recipes: Array<{ name: string; steps: string; match_score: number }> }; // Add RecipeList
+    RecipeList: { recipes: Array<{ recipe_name: string; cooking_time: string; match_percentage: number }> }; // Add RecipeList
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -74,6 +75,16 @@ export default function App() {
                             headerTitle: 'Recommended Recipes',
                         }}
                     />
+                    {/*Recipe Details Screen*/}
+                    <Stack.Screen name="RecipeDetail" 
+                    component={RecipeDetailScreen} 
+                    options={{
+                        headerStyle: { backgroundColor: '#FF9800' },
+                        headerTintColor: '#fff',
+                        headerTitle: 'Recommended Recipes',
+                    }}
+                    />
+      
                 </Stack.Navigator>
             </NavigationContainer>
         </GestureHandlerRootView>

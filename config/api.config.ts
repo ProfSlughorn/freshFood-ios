@@ -7,8 +7,10 @@ const BASE_URL = 'http://appgw-freshfood.australiaeast.cloudapp.azure.com/api';
 
 export const API_ENDPOINTS = {
     SHOPPING_LIST: `${BASE_URL}/shopping-list/items/`,
-    LEFTOVER_RECOMMENDATION: `${BASE_URL}/leftover-recommendation/recommend/`,
+    // LEFTOVER_RECOMMENDATION: `${BASE_URL}/leftover-recommendation/recommend/`,
+    LEFTOVER_RECOMMENDATION: `http://localhost:3000/recipes`,
     IMAGE_RECOGNITION: `${BASE_URL}/image-recognition/analyze-image/`,
+    RECIPE_DETAIL:`http://localhost:3000/recipes`,
 } as const;
 
 export type ApiEndpoint = keyof typeof API_ENDPOINTS;

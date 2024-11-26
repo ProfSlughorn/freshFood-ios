@@ -86,10 +86,12 @@ const LeftoverRecommenderScreen: React.FC<Props> = ({ navigation, route }) => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("retrieved data", data);
         setLoading(false); // Hide loading indicator
         navigation.navigate('RecipeList', { recipes: data.recipes });
       } else {
         const error = await response.json();
+        console.error("get error:", error)
         setLoading(false); // Hide loading indicator
         alert(`Failed to generate recipes: ${error.error}`);
       }

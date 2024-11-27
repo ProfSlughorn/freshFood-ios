@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {API_ENDPOINTS} from "../config/api.config";
+import { RecipePlaceholder } from './RecipePlaceholder';
 
 // Define the Recipe type to match the data structure
 type Recipe = {
+  recipe_id: string;
   recipe_name: string;
   matched_ingredients: string[];
   missing_ingredients: string[];
@@ -24,17 +26,18 @@ type Props = NativeStackScreenProps<RootStackParamList, 'RecipeList'>;
 const { width } = Dimensions.get('window');
 const CARD_MARGIN = 16;
 const CARD_WIDTH = width - (CARD_MARGIN * 2);
+const IMAGE_HEIGHT = 200;
 
 const RecipeListScreen: React.FC<Props> = ({ route, navigation }) => {
   const { recipes } = route.params;
   const [loading, setLoading] = useState<string | null>(null); // Store loading recipe name
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
-  const handleRecipePress = async (recipeName: string) => {
-    setLoading(recipeName); // Show loading for this specific recipe
+  const handleRecipePress = async (recipeId: string) => {
+    setLoading(recipeId); // Show loading for this specific recipe
     try {
-      console.log("to fetch URL:",API_ENDPOINTS.RECIPE_DETAIL +'/123');
-      // console.log("to fetch URL:",API_ENDPOINTS.RECIPE_DETAIL + encodeURIComponent(recipeName));
-      const response = await fetch(`${API_ENDPOINTS.RECIPE_DETAIL}/123}`, {
+      console.log("to fetch URL:", `${API_ENDPOINTS.RECIPE_DETAIL}/${recipeId}`);
+      const response = await fetch(`${API_ENDPOINTS.RECIPE_DETAIL}/${recipeId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -59,18 +62,38 @@ const RecipeListScreen: React.FC<Props> = ({ route, navigation }) => {
     }
   };
 
+  const renderRecipeImage = (recipe: Recipe) => {
+    if (recipe.recipe_image === 'N/A' || imageErrors[recipe.recipe_name]) {
+      return (
+        <View style={[styles.recipeImage, styles.placeholderContainer]}>
+          <RecipePlaceholder width={CARD_WIDTH} height={IMAGE_HEIGHT} />
+        </View>
+      );
+    }
+
+    return (
+      <Image
+        source={{ uri: recipe.recipe_image }}
+        style={styles.recipeImage}
+        resizeMode="cover"
+        onError={() => {
+          setImageErrors(prev => ({
+            ...prev,
+            [recipe.recipe_name]: true
+          }));
+        }}
+      />
+    );
+  };
+
   const renderRecipeItem = ({ item }: { item: Recipe }) => (
     <TouchableOpacity 
       style={styles.recipeItem}
-      onPress={() => handleRecipePress(item.recipe_name)}
+      onPress={() => handleRecipePress(item.recipe_id)}
       activeOpacity={0.7}
       disabled={loading !== null} // Disable all cards while loading
     >
-      <Image
-        source={{ uri: item.recipe_image }}
-        style={styles.recipeImage}
-        resizeMode="cover"
-      />
+      {renderRecipeImage(item)}
       {loading === item.recipe_name && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#3498db" />
@@ -143,9 +166,14 @@ const styles = StyleSheet.create({
   },
   recipeImage: {
     width: '100%',
-    height: 200,
+    height: IMAGE_HEIGHT,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
+  },
+  placeholderContainer: {
+    backgroundColor: '#EAEAEA',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loadingOverlay: {
     position: 'absolute',

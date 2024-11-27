@@ -34,33 +34,63 @@ const RecipeListScreen: React.FC<Props> = ({ route, navigation }) => {
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
   const handleRecipePress = async (recipeId: string) => {
-    setLoading(recipeId); // Show loading for this specific recipe
+    if (!recipeId) {
+      console.warn('Recipe ID is missing');
+      return;
+    }
+
+    setLoading(recipeId);
+    
     try {
-      console.log("to fetch URL:", `${API_ENDPOINTS.RECIPE_DETAIL}/${recipeId}`);
-      const response = await fetch(`${API_ENDPOINTS.RECIPE_DETAIL}/${recipeId}`, {
+      const url = `${API_ENDPOINTS.RECIPE_DETAIL}/${encodeURIComponent(recipeId)}`;
+      console.log("Fetching URL:", url);
+
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      console.log("get data back:",response);
+
+      if (!response) {
+        throw new Error('No response received');
+      }
+
+      // Safely log response status
+      console.log("Response status:", response.status);
 
       if (response.ok) {
         const detailedRecipe = await response.json();
-        console.log("Retrieved recipe details:", detailedRecipe);
-        setLoading(null); // Hide loading indicator
-        navigation.navigate('RecipeDetail', { recipe: detailedRecipe });
+        
+        // Safely log the recipe details
+        console.log("Retrieved recipe details:", JSON.stringify(detailedRecipe, null, 2));
+        
+        setLoading(null);
+        
+        if (detailedRecipe) {
+          navigation.navigate('RecipeDetail', { recipe: detailedRecipe });
+        } else {
+          throw new Error('Recipe details are empty');
+        }
       } else {
-        const error = await response.json();
-        console.error("Error fetching recipe details:", error);
-        setLoading(null); // Hide loading indicator
-        alert(`Failed to fetch recipe details: ${error.error}`);
+        let errorMessage = `Request failed with status ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (parseError) {
+          console.error("Error parsing error response:", parseError);
+        }
+        
+        setLoading(null);
+        alert(`Failed to fetch recipe details: ${errorMessage}`);
       }
     } catch (err) {
-      setLoading(null); // Hide loading indicator
-      alert(`Error: ${(err as Error).message}`);
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      console.error("Error in handleRecipePress:", errorMessage);
+      setLoading(null);
+      alert(`Error: ${errorMessage}`);
     }
-  };
+};
 
   const renderRecipeImage = (recipe: Recipe) => {
     if (recipe.recipe_image === 'N/A' || imageErrors[recipe.recipe_name]) {

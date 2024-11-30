@@ -21,6 +21,7 @@ type RootStackParamList = {
     Home: undefined;
     ShoppingList: undefined;
     LeftoverRecommender: undefined;
+    UserPreferences: undefined; // Add UserPreferences here
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -41,12 +42,12 @@ const HomeScreen = ({ navigation }: Props) => {
 
     const features = [
         {
-            title: 'Shopping List',
-            description: 'Smart list with expiry tracking',
-            icon: <MaterialIcons name="shopping-cart" size={24} color="#fff" />,
-            color: '#4CAF50',
-            onPress: () => navigation.navigate('ShoppingList'),
-        },
+        title: 'User Preferences',
+        description: 'Personalize your experience',
+        icon: <MaterialIcons name="person" size={24} color="#fff" />, // Change the icon to a silhouette of a head
+        color: '#4CAF50',
+        onPress: () => navigation.navigate('UserPreferences'), // You might need to adjust the navigation route
+    },
         {
             title: 'Leftover Manager',
             description: 'Track and use leftovers',

@@ -7,6 +7,7 @@ import {
     Image,
     TouchableOpacity,
     Dimensions,
+    Linking,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, RecipeDetail } from '../App';
@@ -68,6 +69,11 @@ const RecipeDetailScreen: React.FC<Props> = ({ route }) => {
 
     return (
         <ScrollView style={styles.container}>
+            {/* FatSecret Attribution */}
+            <TouchableOpacity onPress={() => Linking.openURL('https://www.fatsecret.com')}>
+                <Text style={styles.attribution}>Powered by FatSecret</Text>
+            </TouchableOpacity>
+
             <Image source={{ uri: recipe.recipe_image }} style={styles.recipeImage} />
 
             <View style={styles.contentContainer}>
@@ -274,6 +280,13 @@ const styles = StyleSheet.create({
         color: '#7f8c8d',
         marginTop: 8,
         fontSize: 14,
+    },
+    attribution: {
+        fontSize: 14,
+        color: '#007AFF',
+        textAlign: 'center',
+        marginTop: 10,
+        textDecorationLine: 'underline',
     },
 });
 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Button, TextInput, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {API_ENDPOINTS} from "../config/api.config";
+import { API_ENDPOINTS } from "../config/api.config";
 
 type RootStackParamList = {
   Home: undefined;
@@ -27,14 +28,53 @@ const LeftoverRecommenderScreen: React.FC<Props> = ({ navigation, route }) => {
   const [recognizedIngredients, setRecognizedIngredients] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState<boolean>(false); // Add loading state
 
+  // Load ingredients from AsyncStorage when the component mounts
+  useEffect(() => {
+    const loadIngredients = async () => {
+      try {
+        const storedIngredients = await AsyncStorage.getItem('@ingredients_list');
+        if (storedIngredients) {
+          setIngredients(JSON.parse(storedIngredients));
+        }
+      } catch (error) {
+        console.error('Failed to load ingredients from storage', error);
+      }
+    };
+    loadIngredients();
+  }, []);
+
+  // Update AsyncStorage whenever ingredients change
+  useEffect(() => {
+    const saveIngredients = async () => {
+      try {
+        await AsyncStorage.setItem('@ingredients_list', JSON.stringify(ingredients));
+      } catch (error) {
+        console.error('Failed to save ingredients to storage', error);
+      }
+    };
+    if (ingredients.length > 0) {
+      saveIngredients();
+    }
+  }, [ingredients]);
+
   useEffect(() => {
     if (route.params?.recognizedIngredients) {
       const newRecognizedIngredients = route.params.recognizedIngredients.map((name, index) => ({
-        id: index,
+        id: ingredients.length + index + 1,
         name,
         selected: false,
       }));
-      setRecognizedIngredients(newRecognizedIngredients);
+
+      // Merge new recognized ingredients without replacing existing ones
+      setRecognizedIngredients((prevRecognizedIngredients) => {
+        // Only add ingredients that are not already recognized
+        const uniqueNewIngredients = newRecognizedIngredients.filter(
+          (newIngredient) =>
+            !prevRecognizedIngredients.some((ingredient) => ingredient.name === newIngredient.name)
+        );
+        return [...prevRecognizedIngredients, ...uniqueNewIngredients];
+      });
+
       setModalVisible(true);
     }
   }, [route.params?.recognizedIngredients]);
@@ -42,6 +82,7 @@ const LeftoverRecommenderScreen: React.FC<Props> = ({ navigation, route }) => {
   const handleAddIngredient = (ingredientName: string) => {
     const newId = ingredients.length > 0 ? ingredients[ingredients.length - 1].id + 1 : 1;
     setIngredients([...ingredients, { id: newId, name: ingredientName }]);
+    setNewIngredient(''); // Clear input after adding
   };
 
   const handleDeleteIngredient = (id: number) => {
@@ -57,12 +98,32 @@ const LeftoverRecommenderScreen: React.FC<Props> = ({ navigation, route }) => {
   };
 
   const handleAddSelectedIngredients = () => {
+    // Filter out the selected ingredients from recognized ingredients
     const selectedIngredients = recognizedIngredients.filter((ingredient) => ingredient.selected);
-    const newIngredients = selectedIngredients.map((ingredient) => ({
-      id: ingredients.length + recognizedIngredients.indexOf(ingredient) + 1,
+
+    // Map to create new ingredient objects
+    const newIngredients = selectedIngredients.map((ingredient, index) => ({
+      id: ingredients.length + index + 1,
       name: ingredient.name,
     }));
-    setIngredients([...ingredients, ...newIngredients]);
+
+    // Update the ingredients state with unique values, preventing duplicates
+    setIngredients((prevIngredients) => {
+      const uniqueIngredients = newIngredients.filter(
+        (newIngredient) => !prevIngredients.some((ingredient) => ingredient.name === newIngredient.name)
+      );
+      const updatedIngredients = [...prevIngredients, ...uniqueIngredients];
+
+      console.log("Updated Ingredients List: ", updatedIngredients); // Debugging log to verify changes
+      return updatedIngredients;
+    });
+
+    // Reset the recognized ingredients' selected state and close the modal
+    setRecognizedIngredients((prevRecognized) =>
+      prevRecognized.map((ingredient) => ({ ...ingredient, selected: false }))
+    );
+
+    // Close the modal after adding
     setModalVisible(false);
   };
 
@@ -88,10 +149,15 @@ const LeftoverRecommenderScreen: React.FC<Props> = ({ navigation, route }) => {
         const data = await response.json();
         console.log("retrieved data", data);
         setLoading(false); // Hide loading indicator
+
+        // Clear ingredients after generating recipes
+        await AsyncStorage.removeItem('@ingredients_list');
+        setIngredients([]);
+
         navigation.navigate('RecipeList', { recipes: data.recipes });
       } else {
         const error = await response.json();
-        console.error("get error:", error)
+        console.error("get error:", error);
         setLoading(false); // Hide loading indicator
         alert(`Failed to generate recipes: ${error.error}`);
       }
@@ -100,6 +166,7 @@ const LeftoverRecommenderScreen: React.FC<Props> = ({ navigation, route }) => {
       alert(`Error: ${(err as Error).message}`);
     }
   };
+
 
   const renderIngredientItem = ({ item }: { item: Ingredient }) => (
     <View style={styles.ingredientRow}>

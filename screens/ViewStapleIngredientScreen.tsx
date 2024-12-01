@@ -11,7 +11,7 @@ const ViewStapleIngredientsScreen = () => {
     // Fetch the list of staples from the backend
     const fetchStaples = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/user-preferences/staples/');
+            const response = await fetch('http://appgw-freshfood.australiaeast.cloudapp.azure.com/api/user-preferences/staples/');
             const data = await response.json();
             setStaples(data.staples);
         } catch (error) {
@@ -22,7 +22,7 @@ const ViewStapleIngredientsScreen = () => {
     // Remove a staple
     const removeStaple = async (ingredientName: any) => {
         try {
-            await fetch('http://127.0.0.1:8000/api/user-preferences/staples/remove/', {
+            await fetch('http://appgw-freshfood.australiaeast.cloudapp.azure.com/api/user-preferences/staples/remove/', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ const ViewStapleIngredientsScreen = () => {
     // Clear all staples
     const clearAllStaples = async () => {
         try {
-            await fetch('http://127.0.0.1:8000/api/user-preferences/staples/clear/', {
+            await fetch('http://appgw-freshfood.australiaeast.cloudapp.azure.com/api/user-preferences/staples/clear/', {
                 method: 'DELETE',
             });
             setStaples([]); // Clear list locally

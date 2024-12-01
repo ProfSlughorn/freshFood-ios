@@ -12,7 +12,7 @@ const AddStapleIngredientsScreen = () => {
         }
 
         try {
-            await fetch('http://127.0.0.1:8000/api/user-preferences/staples/add/', {
+            await fetch('http://appgw-freshfood.australiaeast.cloudapp.azure.com/api/user-preferences/staples/add/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

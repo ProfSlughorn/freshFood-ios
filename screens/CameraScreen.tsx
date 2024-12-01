@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import {apiClient} from "../config/api.config";
+import { apiClient } from '../config/api.config';
 
 const CameraScreen: React.FC = ({ navigation }: any) => {
   const [capturedImage, setCapturedImage] = useState<ImageSourcePropType | null>(null);
@@ -17,11 +17,16 @@ const CameraScreen: React.FC = ({ navigation }: any) => {
 
   const handleCapture = () => {
     const placeholderImages: ImageSourcePropType[] = [
-      require('../assets/Trial_Image_2.png'),
-      require('../assets/Trial_Image_3.png'),
+      require('../assets/capsicum.jpg'),
+      require('../assets/cucumber.jpg'),
+      require('../assets/carrot.jpg'),
+      require('../assets/potato.jpg'),
+      require('../assets/spinach.jpg'),
+      require('../assets/tomato2.jpg'),
     ];
     const randomIndex = Math.floor(Math.random() * placeholderImages.length);
     setCapturedImage(placeholderImages[randomIndex]);
+    console.log('Captured Image Set: ', placeholderImages[randomIndex]); // Debug log to check captured image
   };
 
   const handleUsePhoto = async () => {
@@ -30,39 +35,60 @@ const CameraScreen: React.FC = ({ navigation }: any) => {
       setLoading(true);
 
       // Prepare form data for upload
+      const imageUri = Image.resolveAssetSource(capturedImage).uri;
+      console.log('Image URI: ', imageUri); // Debug log to check image URI
+
+      if (!imageUri) {
+        throw new Error('Image URI could not be resolved. Please try again.');
+      }
+
       const formData = new FormData();
       formData.append('image', {
-        uri: Image.resolveAssetSource(capturedImage).uri, // Resolve URI from the placeholder image
+        uri: imageUri, // URI from the placeholder image
         name: 'image.jpg',
         type: 'image/jpeg',
       } as any);
 
+      console.log('FormData prepared: ', formData); // Debug log to verify form data
+
       // Call the backend API
       const response = await apiClient.uploadImage(formData);
+      console.log('API Response Status: ', response.status); // Debug log to check response status
+      console.log('API Response: ', response); // Debug log to check the entire response
 
-      if (!response.ok) {
-        throw new Error('Failed to analyze the image');
+      // Check response status explicitly
+      if (response.status !== 200) {
+        throw new Error('Failed to analyze the image. Status code: ' + response.status);
       }
 
-      const data = await response.json();
+      // Access the data directly without calling response.json()
+      const data = response.data;
+      console.log('API Response Data: ', data); // Debug log to check response data
 
-      // Navigate back and pass recognized ingredients
-      navigation.navigate('LeftoverRecommender', { recognizedIngredients: data.ingredients || [] });
+      // If ingredients are recognized, proceed
+      if (data && data.ingredients) {
+        // Navigate back and pass recognized ingredients
+        navigation.navigate('LeftoverRecommender', { recognizedIngredients: data.ingredients || [] });
 
-      Alert.alert('Ingredients Recognized', data.ingredients.join(', '));
+        Alert.alert('Ingredients Recognized', data.ingredients.join(', '));
+      } else {
+        throw new Error('No ingredients recognized. Please try again.');
+      }
     } catch (error) {
       // Handle the error safely
       const message =
         error instanceof Error
           ? error.message
           : 'Something went wrong while processing the image. Please try again.';
+      console.error('Error during image analysis: ', message); // Debug log to check error details
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
     }
+  } else {
+    Alert.alert('Error', 'No image has been captured. Please capture an image first.');
   }
 };
-
 
   return (
     <View style={styles.container}>
